@@ -4,22 +4,28 @@ var NativeBridge = {
 };
 
 NativeBridge.callNativeLog = (function() {
-                              function callNativeLog(logMessage){
-                              var message = {
-                              logMessage: logMessage
-                              };
-                              window.webkit.messageHandlers.nativelog.postMessage(JSON.stringify(message));
-                              }
-                              return callNativeLog;
-                              })();
+    function callNativeLog(logMessage){
+        var message = {
+            logMessage: logMessage
+        };
+
+        if(window.webkit && window.webkit.messageHandlers) {
+            window.webkit.messageHandlers.nativelog.postMessage(JSON.stringify(message));
+        } else if (Android) {
+            Android.nativelog(JSON.stringify(message));
+        }
+
+    }
+    return callNativeLog;
+})();
 
 
 (function() {
- var oldConsoleLog = console.log;
- console.log = function() {
- oldConsoleLog.apply(console, arguments);
- NativeBridge.callNativeLog(arguments[0]);
- }
+     var oldConsoleLog = console.log;
+     console.log = function() {
+         oldConsoleLog.apply(console, arguments);
+         NativeBridge.callNativeLog(arguments[0]);
+     }
  })();
 
 
@@ -42,7 +48,12 @@ NativeBridge.callNativeApp = (function() {
         }
                               
         callbackId++;
-        window.webkit.messageHandlers.nativeapp.postMessage(JSON.stringify(message));
+        if(window.webkit && window.webkit.messageHandlers) {
+            window.webkit.messageHandlers.nativeapp.postMessage(JSON.stringify(message));
+        } else if (Android) {
+            Android.nativeapp(JSON.stringify(message));
+        }
+
     }
     return callNativeApp;
 })();
