@@ -9,10 +9,12 @@ NativeBridge.callNativeLog = (function() {
             logMessage: logMessage
         };
 
-        if(window.webkit && window.webkit.messageHandlers) {
+        if(window.webkit && window.webkit.messageHandlers) { // iOS WKWebView
             window.webkit.messageHandlers.nativelog.postMessage(JSON.stringify(message));
-        } else if (Android) {
+        } else if (typeof(Android) !== 'undefined') { // Android webview
             Android.nativelog(JSON.stringify(message));
+        } else { // iOS UIWebView / other
+            window.location = 'mytestappscheme://nativelog/'+JSON.stringify(message);
         }
 
     }
@@ -41,17 +43,19 @@ NativeBridge.callNativeApp = (function() {
             command: command,
             arguments: arguments
         };
-        
-                              
+
+
         if(typeof callback !== 'undefined') {
             NativeBridge.callbacks[callbackId] = callback;
         }
-                              
+
         callbackId++;
         if(window.webkit && window.webkit.messageHandlers) {
             window.webkit.messageHandlers.nativeapp.postMessage(JSON.stringify(message));
-        } else if (Android) {
+        } else if (typeof(Android) !== 'undefined') {
             Android.nativeapp(JSON.stringify(message));
+        } else {
+            window.location = 'mytestappscheme://nativeapp/'+JSON.stringify(message);
         }
 
     }
@@ -65,15 +69,13 @@ NativeBridge.handleCallback = function(message){
 //    console.log(message);
 //    console.log('native callback:');
 //    console.log(NativeBridge.callbacks);
-    
+
     var msgObj = JSON.parse(message);
-    
+
     //insertText('callbackId was '+msgObj.callbackId+' and content: '+msgObj.content);
-    
+
     if (NativeBridge.callbacks[msgObj.callbackId]) {
         NativeBridge.callbacks[msgObj.callbackId](msgObj.content);
     }
     delete NativeBridge.callbacks[msgObj.callbackId];
 }
-
-
