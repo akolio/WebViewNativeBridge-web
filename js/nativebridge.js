@@ -66,14 +66,9 @@ NativeBridge.callNativeApp = (function() {
 
 
 NativeBridge.handleCallback = function(message){
-//    console.log(message);
-//    console.log('native callback:');
-//    console.log(NativeBridge.callbacks);
-
+    // console.log('NativeBridge.handleCallback, message: ', message);
     var msgObj = JSON.parse(message);
-
-    //insertText('callbackId was '+msgObj.callbackId+' and content: '+msgObj.content);
-
+    
     if (NativeBridge.callbacks[msgObj.callbackId]) {
         NativeBridge.callbacks[msgObj.callbackId](msgObj.content);
     }
